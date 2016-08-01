@@ -650,8 +650,20 @@ class PropertyData(ValueField):
             ret = None
 
         elif format == 8:
-            ret = (8, data[:length].decode())
+            try:
+              decoded_value = data[:length].decode()
+            except UnicodeDecodeError as e:
+              print 'Decoding with default arg failure: {}'.format(e)
+              try:
+                decoded_value = data[:length].decode('utf-8')
+              except UnicodeDecodeError as e:
+                print 'Decoding with utf8 failure: {}'.format(e)
+              else:
+                print 'Decoding with utf8 success'
+            decoded_value = data[:length].decode('utf-8', errors='ignore')
+            ret = (8, decoded_value)
             data = data[length + ((4 - length % 4) % 4):]
+
 
         elif format == 16:
             ret = (16, array(array_unsigned_codes[2], data[:2 * length]))
